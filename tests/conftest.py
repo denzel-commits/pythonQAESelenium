@@ -1,5 +1,6 @@
 import pytest
 from selenium import webdriver
+from selenium.webdriver import Keys
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
@@ -7,7 +8,30 @@ from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.edge.service import Service as EdgeService
 
-from configuration import YANDEX_WEBDRIVER_PATH
+from configuration import YANDEX_WEBDRIVER_PATH, ADMIN_PATH
+from src.pages.admin_login_page import AdminLoginPage
+from src.utils import search_visible_element, send_keys_by_one
+
+
+@pytest.fixture()
+def admin_login(request, driver, base_url):
+    driver.get(base_url + ADMIN_PATH)
+
+    username, password = request.param
+
+    search_visible_element(driver, AdminLoginPage.USERNAME_INPUT).click()
+    search_visible_element(driver, AdminLoginPage.USERNAME_INPUT).clear()
+    send_keys_by_one(search_visible_element(driver, AdminLoginPage.USERNAME_INPUT),
+                     username
+                     )
+
+    search_visible_element(driver, AdminLoginPage.PASSWORD_INPUT).click()
+    search_visible_element(driver, AdminLoginPage.PASSWORD_INPUT).clear()
+    send_keys_by_one(search_visible_element(driver, AdminLoginPage.PASSWORD_INPUT),
+                     password
+                     )
+
+    search_visible_element(driver, AdminLoginPage.PASSWORD_INPUT).send_keys(Keys.RETURN)
 
 
 def pytest_addoption(parser):
