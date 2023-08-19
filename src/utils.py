@@ -1,4 +1,5 @@
 import time
+import os.path
 
 from selenium.common import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
@@ -40,7 +41,7 @@ def search_clickable_element(driver, locator, timeout=3):
 
 
 def make_screenshot(driver, filename):
-    driver.save_screenshot(f"{SCREENSHOTS_PATH}{filename}.png")
+    driver.save_screenshot(os.path.join(SCREENSHOTS_PATH, f"{filename}.png"))
 
 
 def send_keys_by_one(element, text, delay=0.1):
