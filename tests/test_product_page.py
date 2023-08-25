@@ -1,5 +1,5 @@
 from configuration import PRODUCT_HTC_PATH
-from src.pages.product_page import ProductPage
+from src.page_objects.product_page import ProductPage
 from src.utils import search_visible_element
 
 

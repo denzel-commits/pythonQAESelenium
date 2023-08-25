@@ -1,7 +1,7 @@
 import time
 
 from configuration import REGISTER_PATH
-from src.pages.register_page import RegisterPage
+from src.page_objects.register_page import RegisterPage
 from src.utils import search_visible_element, search_visible_elements
 
 

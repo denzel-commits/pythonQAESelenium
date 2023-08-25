@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 
 from configuration import CATALOG_SMARTPHONE_PATH
 from src.utils import search_visible_element, search_visible_elements
-from src.pages.catalog_page import CatalogPage
+from src.page_objects.catalog_page import CatalogPage
 
 
 class TestCatalog:

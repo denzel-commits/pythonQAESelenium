@@ -9,7 +9,7 @@ from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.edge.service import Service as EdgeService
 
 from configuration import YANDEX_WEBDRIVER_PATH, ADMIN_PATH
-from src.pages.admin_login_page import AdminLoginPage
+from src.page_objects.admin_login_page import AdminLoginPage
 from src.utils import search_visible_element, send_keys_by_one
 
 

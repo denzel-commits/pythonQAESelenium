@@ -4,7 +4,7 @@ import pytest
 from selenium.webdriver.common.by import By
 from configuration import ADMIN_PATH
 from src.utils import search_visible_element, make_screenshot
-from src.pages.admin_login_page import AdminLoginPage
+from src.page_objects.admin_login_page import AdminLoginPage
 
 
 class TestAdminLogin:
