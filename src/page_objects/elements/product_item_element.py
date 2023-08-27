@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 
 class ProductItemElement(BasePage):
     PRODUCT_NAME = (By.CSS_SELECTOR, ".caption h4 a")
+    PRODUCT_IMAGE = (By.CSS_SELECTOR, ".image")
 
     OLD_PRICE = (By.CSS_SELECTOR, ".caption .price .price-old")
     PRODUCT_PRICE = (By.CSS_SELECTOR, ".caption .price")
@@ -35,3 +36,6 @@ class ProductItemElement(BasePage):
 
     def add_to_cart(self):
         self.click(self.root.find_element(*self.CART_BUTTON))
+
+    def get_image_element(self):
+        return self.root.find_element(*self.PRODUCT_IMAGE)
