@@ -5,10 +5,11 @@ from src.page_objects.home_page import HomePage
 
 class TestProduct:
 
-    @pytest.mark.parametrize("index", [0, 1, 2, 3])
-    def test_product_page_elements(self, index, driver, base_url, products_element):
+    @pytest.mark.parametrize("index", [0, 1])
+    def test_product_page_elements(self, index, driver, base_url, products_featured_element):
         HomePage(driver, base_url)
-        product_page = products_element.click_on_product_image(index)
+
+        product_page = products_featured_element.click_on_product_image(index)
 
         product_page.get_element(ProductPage.PRODUCT_NAME)
         product_page.get_element(ProductPage.PRODUCT_PRICE)

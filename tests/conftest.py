@@ -31,7 +31,7 @@ def pytest_addoption(parser):
         "--headless", action="store_true"
     )
     parser.addoption(
-        "--base_url", help="Request URL", default="http://192.168.1.128:8081"
+        "--base_url", help="Request URL", default="http://192.168.1.127:8081"
     )
 
 

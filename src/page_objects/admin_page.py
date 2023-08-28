@@ -2,9 +2,10 @@ from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 
 from src.base_classes.base_page import BasePage
+from src.utils import make_screenshot
 
 
-class AdminLoginPage(BasePage):
+class AdminPage(BasePage):
     PAGE_URL = "/admin"
 
     USERNAME_INPUT = (By.CSS_SELECTOR, "#input-username")
@@ -21,13 +22,13 @@ class AdminLoginPage(BasePage):
         self.driver.get(base_url + self.PAGE_URL)
 
     def enter_username(self, username):
-        self._do_input(self.get_element(AdminLoginPage.USERNAME_INPUT),
+        self._do_input(self.get_element(AdminPage.USERNAME_INPUT),
                        username
                        )
         return self
 
     def enter_password(self, password):
-        self._do_input(self.get_element(AdminLoginPage.PASSWORD_INPUT),
+        self._do_input(self.get_element(AdminPage.PASSWORD_INPUT),
                        password
                        )
         return self
@@ -37,12 +38,16 @@ class AdminLoginPage(BasePage):
         return self
 
     def press_enter(self):
-        self.get_element(AdminLoginPage.PASSWORD_INPUT).send_keys(Keys.RETURN)
+        self.get_element(AdminPage.PASSWORD_INPUT).send_keys(Keys.RETURN)
         return self
-
-    def is_logged_in(self):
-        return self.get_element(self.ADMIN_PAGE_HEADER_H1).text == "Dashboard"
 
     def click_logout(self):
         self.get_element(self.LOGOUT_LINK).click()
         return self
+
+    def is_logged_in(self):
+        if self.get_element(self.ADMIN_PAGE_HEADER_H1).text == "Dashboard":
+            return self
+        else:
+            make_screenshot(self.driver, "admin_login_test")
+            assert False
