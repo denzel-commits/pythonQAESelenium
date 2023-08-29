@@ -3,17 +3,16 @@ import random
 from selenium.webdriver.common.by import By
 
 from src.base_classes.base_page import BasePage
-from src.interfaces.abstract_products_element import AbstractProductsElement
 from src.page_objects.elements.product_item_element import ProductItemElement
 from src.page_objects.product_page import ProductPage
 
 
-class ProductsElement(BasePage, AbstractProductsElement):
+class ProductsElement(BasePage):
     PRODUCTS_LOCATOR = (By.CSS_SELECTOR, ".product-layout")
 
     def get_products(self) -> list[ProductItemElement]:
         products = self.get_elements(self.PRODUCTS_LOCATOR)
-        return [ProductItemElement(self.driver, product) for product in products]
+        return [ProductItemElement(self.browser, product) for product in products]
 
     def get_random_product(self) -> ProductItemElement:
         # exclude last two products as they cannot be added to the cart
@@ -27,5 +26,5 @@ class ProductsElement(BasePage, AbstractProductsElement):
 
     def click_on_product_image(self, index) -> ProductPage:
         product = self.get_products()[index]
-        product.get_image_element().click()
-        return ProductPage(self.driver)
+        self.click(product.get_image_element())
+        return ProductPage(self.browser)

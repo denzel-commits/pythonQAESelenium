@@ -5,13 +5,13 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from src.utils import make_screenshot
+from src.utilities import make_screenshot
 
 
 class BasePage:
 
-    def __init__(self, driver):
-        self.driver = driver
+    def __init__(self, browser):
+        self.browser = browser
 
     def _do_input(self, element, text):
         self.click(element)
@@ -25,13 +25,13 @@ class BasePage:
             element.send_keys(char)
 
     def click(self, element):
-        ActionChains(self.driver).move_to_element(element).pause(0.1).click().perform()
+        ActionChains(self.browser).move_to_element(element).pause(0.1).click().perform()
 
     def get_element(self, locator, timeout=3):
         try:
-            return WebDriverWait(self.driver, timeout=timeout).until(EC.visibility_of_element_located(locator))
+            return WebDriverWait(self.browser, timeout=timeout).until(EC.visibility_of_element_located(locator))
         except TimeoutException:
-            make_screenshot(self.driver, self.driver.session_id)
+            make_screenshot(self.browser, self.browser.session_id)
             raise AssertionError("WebElement is not visible")
 
     def get_element_from_element(self, parent_locator, child_locator, timeout=3):
@@ -39,14 +39,14 @@ class BasePage:
 
     def get_elements(self, locator, timeout=3):
         try:
-            return WebDriverWait(self.driver, timeout=timeout).until(EC.visibility_of_all_elements_located(locator))
+            return WebDriverWait(self.browser, timeout=timeout).until(EC.visibility_of_all_elements_located(locator))
         except TimeoutException:
-            make_screenshot(self.driver, self.driver.session_id)
+            make_screenshot(self.browser, self.browser.session_id)
             raise AssertionError("WebElement is not visible")
 
     def get_clickable_element(self, locator, timeout=3):
         try:
-            return WebDriverWait(self.driver, timeout=timeout).until(EC.element_to_be_clickable(locator))
+            return WebDriverWait(self.browser, timeout=timeout).until(EC.element_to_be_clickable(locator))
         except TimeoutException:
-            make_screenshot(self.driver, self.driver.session_id)
+            make_screenshot(self.browser, self.browser.session_id)
             raise AssertionError("WebElement is not visible or not clickable/disabled")

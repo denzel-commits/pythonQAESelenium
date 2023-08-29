@@ -2,7 +2,7 @@ from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 
 from src.base_classes.base_page import BasePage
-from src.utils import make_screenshot
+from src.utilities import make_screenshot
 
 
 class AdminPage(BasePage):
@@ -17,37 +17,51 @@ class AdminPage(BasePage):
     ADMIN_PAGE_HEADER_H1 = (By.CSS_SELECTOR, "H1")
     LOGOUT_LINK = (By.LINK_TEXT, "Logout")
 
-    def __init__(self, driver, base_url):
-        super().__init__(driver)
-        self.driver.get(base_url + self.PAGE_URL)
+    CATALOG_MENU_ITEM = (By.CSS_SELECTOR, "#menu-catalog")
+    PRODUCTS_MENU_ITEM = (By.XPATH, "//nav[@id='column-left']//ul[@id='menu']//li//a[text()='Products']")
 
-    def enter_username(self, username):
-        self._do_input(self.get_element(AdminPage.USERNAME_INPUT),
+    def __init__(self, browser):
+        super().__init__(browser)
+        self.browser.open(self.PAGE_URL)
+
+    def set_username(self, username):
+        self._do_input(self.get_element(self.USERNAME_INPUT),
                        username
                        )
         return self
 
-    def enter_password(self, password):
-        self._do_input(self.get_element(AdminPage.PASSWORD_INPUT),
+    def set_password(self, password):
+        self._do_input(self.get_element(self.PASSWORD_INPUT),
                        password
                        )
         return self
 
     def click_login(self):
-        self.get_element(self.LOGIN_BUTTON).click()
+        self.click(self.get_element(self.LOGIN_BUTTON))
         return self
 
     def press_enter(self):
-        self.get_element(AdminPage.PASSWORD_INPUT).send_keys(Keys.RETURN)
+        self.get_element(self.PASSWORD_INPUT).send_keys(Keys.RETURN)
+        return self
+
+    def login_with(self, username, password):
+        self.set_username(username)
+        self.set_password(password)
+        self.press_enter()
         return self
 
     def click_logout(self):
-        self.get_element(self.LOGOUT_LINK).click()
+        self.click(self.get_element(self.LOGOUT_LINK))
         return self
 
-    def is_logged_in(self):
+    def verify_is_logged_in(self):
         if self.get_element(self.ADMIN_PAGE_HEADER_H1).text == "Dashboard":
             return self
         else:
-            make_screenshot(self.driver, "admin_login_test")
+            make_screenshot(self.browser, "admin_login_test")
             assert False
+
+    def click_products_menu_item(self):
+        self.click(self.get_element(self.CATALOG_MENU_ITEM))
+        self.click(self.get_element(self.PRODUCTS_MENU_ITEM))
+        return self

@@ -1,14 +1,11 @@
-import random
-
 from selenium.webdriver.common.by import By
 from src.base_classes.base_page import BasePage
 from src.page_objects.catalog_page import CatalogPage
-from src.page_objects.elements.product_item_element import ProductItemElement
-from src.page_objects.product_page import ProductPage
 
 
 class HomePage(BasePage):
     CURRENCY_DROPDOWN = (By.CSS_SELECTOR, "#form-currency .dropdown-toggle")
+    CURRENCY_CURRENT = (By.CSS_SELECTOR, "#form-currency strong")
     EUR_CURRENCY_BUTTON = (By.CSS_SELECTOR, "#form-currency .dropdown-menu button[name='EUR']")
     GBP_CURRENCY_BUTTON = (By.CSS_SELECTOR, "#form-currency .dropdown-menu button[name='GBP']")
     USD_CURRENCY_BUTTON = (By.CSS_SELECTOR, "#form-currency .dropdown-menu button[name='USD']")
@@ -25,12 +22,11 @@ class HomePage(BasePage):
 
     TOP_MENU_ITEMS = (By.CSS_SELECTOR, "#menu .navbar-nav>li>a")
 
-    def __init__(self, driver, base_url):
-        super().__init__(driver)
-        self.driver.get(base_url)
+    TOP_RIGHT_LINKS = (By.CSS_SELECTOR, "#top-links .dropdown a[title='My Account']")
+    REGISTER_MENU_ITEM = (By.XPATH, "//a[text()='Register']")
 
     def set_currency(self, currency_code):
-        self.get_element(self.CURRENCY_DROPDOWN).click()
+        self.click(self.get_element(self.CURRENCY_DROPDOWN))
 
         currencies = {
             "EUR": self.get_element(self.EUR_CURRENCY_BUTTON).click,
@@ -45,19 +41,30 @@ class HomePage(BasePage):
         self.get_element(self.CART_BUTTON).click()
         return self
 
-    def product_is_in_cart(self, product_name):
+    def verify_product_is_in_cart(self, product_name):
         self.click_cart_button()
 
         cart_product_names = [cart_item.find_element(*self.CART_ITEM_NAME).text
                               for cart_item in self.get_elements(self.CART_ITEMS)
                               ]
 
-        return product_name in cart_product_names
+        assert product_name in cart_product_names
+
+    @staticmethod
+    def verify_prices_changed(prices, new_prices):
+        assert prices != new_prices
+
+    def verify_currency_symbol(self, currency_symbol):
+        assert currency_symbol == self.get_element(self.CURRENCY_CURRENT).text
 
     def click_menu_item_by_name(self, target_name):
         for item in self.get_elements(self.TOP_MENU_ITEMS):
             if item.text == target_name:
-                item.click()
+                self.click(item)
                 break
 
-        return CatalogPage(self.driver)
+        return CatalogPage(self.browser)
+
+    def click_register(self):
+        self.click(self.get_element(self.TOP_RIGHT_LINKS))
+        self.click(self.get_element(self.REGISTER_MENU_ITEM))

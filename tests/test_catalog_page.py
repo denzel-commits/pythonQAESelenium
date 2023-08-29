@@ -6,8 +6,8 @@ from src.page_objects.home_page import HomePage
 
 
 class TestCatalog:
-    def test_catalog_page_elements(self, driver, base_url):
-        catalog = HomePage(driver, base_url).click_menu_item_by_name("Phones & PDAs")
+    def test_catalog_page_elements(self, browser, base_url):
+        catalog = HomePage(browser).click_menu_item_by_name("Phones & PDAs")
 
         catalog.get_element(CatalogPage.LEFT_MENU_ITEMS)
         catalog.get_element(CatalogPage.SWIPER_SLIDER)
@@ -18,12 +18,12 @@ class TestCatalog:
         catalog.get_element(CatalogPage.LIST_VIEW)
 
     @pytest.mark.parametrize("currency_code", ["EUR", "GBP"])
-    def test_change_currency(self, driver, base_url, currency_code, products_catalog_element):
-        home_page = HomePage(driver, base_url)
+    def test_change_currency_prices(self, browser, currency_code, products_element):
+        home_page = HomePage(browser)
         home_page.click_menu_item_by_name("Phones & PDAs")
 
-        prices = products_catalog_element.get_products_prices()
+        prices = products_element.get_products_prices()
         home_page.set_currency(currency_code)
-        new_prices = products_catalog_element.get_products_prices()
+        new_prices = products_element.get_products_prices()
 
         assert prices != new_prices

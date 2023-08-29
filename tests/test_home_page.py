@@ -5,8 +5,8 @@ from src.page_objects.home_page import HomePage
 
 class TestHome:
 
-    def test_home_page_elements(self, driver, base_url):
-        home_page = HomePage(driver, base_url)
+    def test_home_page_elements(self, browser):
+        home_page = HomePage(browser)
         home_page.get_element(HomePage.SHOPPING_CART_LINK)
         home_page.get_element(HomePage.CART_BUTTON)
 
@@ -16,21 +16,27 @@ class TestHome:
         home_page.get_element(HomePage.SEARCH_BUTTON)
         home_page.get_element(HomePage.HOME_LINK)
 
-    def test_add_random_product_to_cart(self, driver, base_url, products_featured_element):
-        home_page = HomePage(driver, base_url)
+    def test_add_random_product_to_cart(self, browser, products_element):
+        home_page = HomePage(browser)
 
-        product = products_featured_element.get_random_product()
+        product = products_element.get_random_product()
         product_name = product.get_name()
         product.add_to_cart()
 
-        assert home_page.product_is_in_cart(product_name)
+        home_page.verify_product_is_in_cart(product_name)
 
     @pytest.mark.parametrize("currency_code", ["EUR", "GBP"])
-    def test_change_currency(self, driver, base_url, currency_code, products_featured_element):
-        home_page = HomePage(driver, base_url)
+    def test_change_currency_prices(self, browser, currency_code, products_element):
+        home_page = HomePage(browser)
 
-        prices = products_featured_element.get_products_prices()
+        prices = products_element.get_products_prices()
         home_page.set_currency(currency_code)
-        new_prices = products_featured_element.get_products_prices()
+        new_prices = products_element.get_products_prices()
 
-        assert prices != new_prices
+        home_page.verify_prices_changed(prices, new_prices)
+
+    @pytest.mark.parametrize("currency_code, expected_currency_symbol", [("EUR", "€"), ("GBP", "£")])
+    def test_change_currency(self, browser, currency_code, expected_currency_symbol):
+        HomePage(browser) \
+            .set_currency(currency_code) \
+            .verify_currency_symbol(expected_currency_symbol)
