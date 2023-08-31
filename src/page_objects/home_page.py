@@ -38,7 +38,9 @@ class HomePage(BasePage):
         return self
 
     def click_cart_button(self):
-        self.get_element(self.CART_BUTTON).click()
+        self._simple_click_element(
+            self.get_element(self.CART_BUTTON)
+        )
         return self
 
     def verify_product_is_in_cart(self, product_name):

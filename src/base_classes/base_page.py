@@ -27,24 +27,34 @@ class BasePage:
     def click(self, element):
         ActionChains(self.browser).move_to_element(element).pause(0.1).click().perform()
 
-    def get_element(self, locator, timeout=3):
+    @staticmethod
+    def _simple_click_element(element):
+        element.click()
+
+    def get_element(self, locator, timeout=0):
+        timeout = self.browser.tolerance if not timeout else timeout
         try:
             return WebDriverWait(self.browser, timeout=timeout).until(EC.visibility_of_element_located(locator))
         except TimeoutException:
             make_screenshot(self.browser, self.browser.session_id)
             raise AssertionError("WebElement is not visible")
 
-    def get_element_from_element(self, parent_locator, child_locator, timeout=3):
-        return self.get_element(parent_locator).get_element(child_locator)
+    def get_element_from_element(self, parent_locator, child_locator):
+        return self.get_element(parent_locator).find_element(*child_locator)
 
-    def get_elements(self, locator, timeout=3):
+    def get_elements_from_element(self, parent_locator, child_locator):
+        return self.get_element(parent_locator).find_elements(*child_locator)
+
+    def get_elements(self, locator, timeout=0):
+        timeout = self.browser.tolerance if not timeout else timeout
         try:
             return WebDriverWait(self.browser, timeout=timeout).until(EC.visibility_of_all_elements_located(locator))
         except TimeoutException:
             make_screenshot(self.browser, self.browser.session_id)
             raise AssertionError("WebElement is not visible")
 
-    def get_clickable_element(self, locator, timeout=3):
+    def get_clickable_element(self, locator, timeout=0):
+        timeout = self.browser.tolerance if not timeout else timeout
         try:
             return WebDriverWait(self.browser, timeout=timeout).until(EC.element_to_be_clickable(locator))
         except TimeoutException:

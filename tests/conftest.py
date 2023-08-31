@@ -30,7 +30,7 @@ def db_connection(request):
 
 @pytest.fixture(scope='session', autouse=True)
 def faker_seed():
-    return random.seed
+    return random.randint(1, 1000)
 
 
 @pytest.fixture()
@@ -50,6 +50,9 @@ def pytest_addoption(parser):
     parser.addoption(
         "--base_url", help="Request URL", default="http://192.168.1.127:8081"
     )
+    parser.addoption(
+        "--tolerance", type=int, default=3
+    )
 
 
 @pytest.fixture()
@@ -61,11 +64,13 @@ def base_url(request):
 def browser(request, base_url):
     browser_name = request.config.getoption("--browser").lower()
     headless = request.config.getoption("--headless")
+    tolerance = request.config.getoption("--tolerance")
 
     if browser_name == "chrome":
         options = ChromeOptions()
         options.add_argument("start-maximized")
 
+        options.add_argument("--window-size=1920,1080")
         if headless:
             options.add_argument("--headless")
 
@@ -77,7 +82,7 @@ def browser(request, base_url):
         if headless:
             options.add_argument("-headless")
 
-        driver = webdriver.Chrome(service=FirefoxService(), options=options)
+        driver = webdriver.Firefox(service=FirefoxService(), options=options)
         driver.maximize_window()
 
     elif browser_name == "yandex":
@@ -106,5 +111,6 @@ def browser(request, base_url):
 
     driver.open = go_to
     driver.open()
+    driver.t = tolerance
 
     return driver

@@ -1,3 +1,5 @@
+import time
+
 import pytest
 
 from src.page_objects.admin_page import AdminPage
@@ -23,28 +25,30 @@ class TestAdminPage:
             .verify_is_logged_in() \
             .click_logout()
 
-    @pytest.mark.parametrize("product", test_products)
-    def test_create_product(self, product, browser, create_admin_user):
+    @pytest.mark.parametrize("test_product", test_products, indirect=True)
+    def test_create_product(self, browser, create_admin_user, test_product):
         AdminPage(browser) \
             .login_with(*create_admin_user) \
             .click_products_menu_item()
 
-        ManageProductsPage(browser).click_add_new_product()
+        products_page = ManageProductsPage(browser) \
+            .click_add_new_product()
 
         AddProductPage(browser) \
-            .fill_add_product_form_with(product) \
+            .fill_add_product_form_with(test_product) \
             .click_save_button()
 
         AlertSuccessElement(browser).verify_success_message()
+        assert products_page.has_product_in_list(test_product["model"])
 
     @pytest.mark.parametrize("prepare_product", test_products, indirect=True)
     def test_delete_product(self, browser, prepare_product):
         model = prepare_product
-        ManageProductsPage(browser) \
-            .set_filter_model(model) \
-            .click_filter() \
-            .click_checkbox_all() \
+
+        products_page = ManageProductsPage(browser) \
+            .click_product_checkbox(model) \
             .click_delete_product() \
-            .confirm_deletion_alert()
+            .accept_delete_alert()
 
         AlertSuccessElement(browser).verify_success_message()
+        assert not products_page.has_product_in_list(model)

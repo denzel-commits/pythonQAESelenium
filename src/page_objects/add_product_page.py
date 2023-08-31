@@ -32,7 +32,7 @@ class AddProductPage(BasePage):
             .set_model(product["model"]) \
             .set_price(product["price"]) \
             .set_quantity(product["quantity"]) \
-            .set_stock_status(product["stock_status"]) \
+            .set_stock_status(product["stock_status_id"]) \
             .click_links_tab() \
             .set_category(product["category"])
         # .click_image_tab() \
@@ -75,7 +75,7 @@ class AddProductPage(BasePage):
 
     def set_stock_status(self, stock_status):
         stock_status_select = Select(self.get_element(self.STOCK_STATUS_SELECT))
-        stock_status_select.select_by_visible_text(stock_status)
+        stock_status_select.select_by_value(stock_status)
         return self
 
     def set_image(self, image_url):
