@@ -24,38 +24,32 @@ class UserPage(BasePage):
 
     def set_firstname(self, firstname):
         self._do_input(self.get_element(self.FIRSTNAME_INPUT),
-                       firstname
-                       )
+                       firstname)
         return self
 
     def set_lastname(self, lastname):
         self._do_input(self.get_element(self.LASTNAME_INPUT),
-                       lastname
-                       )
+                       lastname)
         return self
 
     def set_email(self, email):
         self._do_input(self.get_element(self.EMAIL_INPUT),
-                       email
-                       )
+                       email)
         return self
 
     def set_telephone(self, phone):
         self._do_input(self.get_element(self.PHONE_INPUT),
-                       phone
-                       )
+                       phone)
         return self
 
     def set_password(self, password):
         self._do_input(self.get_element(self.PASSWORD_INPUT),
-                       password
-                       )
+                       password)
         return self
 
     def set_password_confirm(self, password):
         self._do_input(self.get_element(self.CONFIRM_INPUT),
-                       password
-                       )
+                       password)
         return self
 
     def subscribe(self, choice="No"):
