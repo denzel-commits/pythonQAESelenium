@@ -26,4 +26,4 @@ class TestCatalog:
         home_page.set_currency(currency_code)
         new_prices = products_element.get_products_prices()
 
-        assert prices != new_prices
+        home_page.verify_prices_changed_to(currency_code, prices, new_prices)

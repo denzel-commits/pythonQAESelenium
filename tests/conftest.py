@@ -111,6 +111,6 @@ def browser(request, base_url):
 
     driver.open = go_to
     driver.open()
-    driver.t = tolerance
+    driver.tolerance = tolerance
 
     return driver

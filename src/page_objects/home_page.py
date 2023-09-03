@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from src.base_classes.base_page import BasePage
 from src.page_objects.catalog_page import CatalogPage
+from src.utilities import convert_currency, sanitize_price
 
 
 class HomePage(BasePage):
@@ -28,12 +29,12 @@ class HomePage(BasePage):
     def set_currency(self, currency_code):
         self.click(self.get_element(self.CURRENCY_DROPDOWN))
 
-        currencies = {
-            "EUR": self.get_element(self.EUR_CURRENCY_BUTTON).click,
-            "GBP": self.get_element(self.GBP_CURRENCY_BUTTON).click,
-            "USD": self.get_element(self.USD_CURRENCY_BUTTON).click,
-        }
-        currencies[currency_code]()
+        if currency_code == "EUR":
+            self.click(self.get_element(self.EUR_CURRENCY_BUTTON))
+        elif currency_code == "GBP":
+            self.click(self.get_element(self.GBP_CURRENCY_BUTTON))
+        elif currency_code == "USD":
+            self.click(self.get_element(self.USD_CURRENCY_BUTTON))
 
         return self
 
@@ -53,8 +54,11 @@ class HomePage(BasePage):
         assert product_name in cart_product_names
 
     @staticmethod
-    def verify_prices_changed(prices, new_prices):
-        assert prices != new_prices
+    def verify_prices_changed_to(currency_code, initial_prices, new_prices):
+        converted_prices = [convert_currency(price, "USD", currency_code) for price in initial_prices]
+        sanitized_new_prices = [sanitize_price(price, currency_code) for price in new_prices]
+        print(converted_prices, "==", sanitized_new_prices)
+        assert converted_prices == sanitized_new_prices
 
     def verify_currency_symbol(self, currency_symbol):
         assert currency_symbol == self.get_element(self.CURRENCY_CURRENT).text

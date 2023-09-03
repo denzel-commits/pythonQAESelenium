@@ -10,3 +10,5 @@ MYSQL_DB_USER = "bn_opencart"
 MYSQL_DB_PASSWORD = ""
 MYSQL_DB_HOST = "127.0.0.1"
 MYSQL_DB_PORT = "3306"
+
+currency_symbols = {"EUR": "€", "GBP": "£", "USD": "$"}

@@ -33,7 +33,7 @@ class TestHome:
         home_page.set_currency(currency_code)
         new_prices = products_element.get_products_prices()
 
-        home_page.verify_prices_changed(prices, new_prices)
+        home_page.verify_prices_changed_to(currency_code, prices, new_prices)
 
     @pytest.mark.parametrize("currency_code, expected_currency_symbol", [("EUR", "€"), ("GBP", "£")])
     def test_change_currency(self, browser, currency_code, expected_currency_symbol):
