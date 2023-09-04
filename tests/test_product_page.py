@@ -1,18 +1,21 @@
-from configuration import PRODUCT_HTC_PATH
-from src.pages.product_page import ProductPage
-from src.utils import search_visible_element
+import pytest
+from src.page_objects.product_page import ProductPage
+from src.page_objects.home_page import HomePage
 
 
 class TestProduct:
 
-    def test_product_page_elements(self, driver, base_url):
-        driver.get(base_url + PRODUCT_HTC_PATH)
+    @pytest.mark.parametrize("index", [0, 3])
+    def test_product_page_elements(self, index, browser, products_element):
+        HomePage(browser)
 
-        search_visible_element(driver, ProductPage.PRODUCT_NAME)
-        search_visible_element(driver, ProductPage.PRODUCT_PRICE)
-        search_visible_element(driver, ProductPage.PRODUCT_BRAND_LINK)
-        search_visible_element(driver, ProductPage.PRODUCT_AVAILABILITY)
-        search_visible_element(driver, ProductPage.QUANTITY_INPUT)
-        search_visible_element(driver, ProductPage.ADD_TO_CART_BUTTON)
-        search_visible_element(driver, ProductPage.ADD_TO_WISHLIST_BUTTON)
-        search_visible_element(driver, ProductPage.ADD_TO_COMPARISON_BUTTON)
+        product_page = products_element.click_on_product_image(index)
+
+        product_page.get_element(ProductPage.PRODUCT_NAME)
+        product_page.get_element(ProductPage.PRODUCT_PRICE)
+        product_page.get_element(ProductPage.PRODUCT_BRAND_LINK)
+        product_page.get_element(ProductPage.PRODUCT_AVAILABILITY)
+        product_page.get_element(ProductPage.QUANTITY_INPUT)
+        product_page.get_element(ProductPage.ADD_TO_CART_BUTTON)
+        product_page.get_element(ProductPage.ADD_TO_WISHLIST_BUTTON)
+        product_page.get_element(ProductPage.ADD_TO_COMPARISON_BUTTON)
