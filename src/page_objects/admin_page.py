@@ -26,14 +26,12 @@ class AdminPage(BasePage):
 
     def set_username(self, username):
         self._do_input(self.get_element(self.USERNAME_INPUT),
-                       username
-                       )
+                       username)
         return self
 
     def set_password(self, password):
         self._do_input(self.get_element(self.PASSWORD_INPUT),
-                       password
-                       )
+                       password)
         return self
 
     def click_login(self):
@@ -55,7 +53,7 @@ class AdminPage(BasePage):
         return self
 
     def verify_is_logged_in(self):
-        if self.get_element(self.ADMIN_PAGE_HEADER_H1).text == "Dashboard":
+        if self.verify_element_text(self.get_element(self.ADMIN_PAGE_HEADER_H1), "Dashboard"):
             return self
         else:
             make_screenshot(self.browser, "admin_login_test")

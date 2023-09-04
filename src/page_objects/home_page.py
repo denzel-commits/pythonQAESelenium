@@ -39,7 +39,7 @@ class HomePage(BasePage):
         return self
 
     def click_cart_button(self):
-        self._simple_click_element(
+        self.simple_click_element(
             self.get_element(self.CART_BUTTON)
         )
         return self
@@ -61,7 +61,7 @@ class HomePage(BasePage):
         assert converted_prices == sanitized_new_prices
 
     def verify_currency_symbol(self, currency_symbol):
-        assert currency_symbol == self.get_element(self.CURRENCY_CURRENT).text
+        assert self.verify_element_text(self.get_element(self.CURRENCY_CURRENT), currency_symbol)
 
     def click_menu_item_by_name(self, target_name):
         for item in self.get_elements(self.TOP_MENU_ITEMS):

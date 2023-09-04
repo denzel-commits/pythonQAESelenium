@@ -69,5 +69,4 @@ class UserPage(BasePage):
         return self
 
     def verify_account_created(self):
-        assert "Your Account Has Been Created!" == self.get_element(self.CREATED_ACCOUNT_HEADER).text
-
+        assert self.verify_element_text(self.get_element(self.CREATED_ACCOUNT_HEADER), "Your Account Has Been Created!")

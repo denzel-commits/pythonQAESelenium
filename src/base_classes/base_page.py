@@ -28,7 +28,11 @@ class BasePage:
         ActionChains(self.browser).move_to_element(element).pause(0.1).click().perform()
 
     @staticmethod
-    def _simple_click_element(element):
+    def verify_element_text(element, text):
+        return element.text == text
+
+    @staticmethod
+    def simple_click_element(element):
         element.click()
 
     def get_element(self, locator, timeout=0):

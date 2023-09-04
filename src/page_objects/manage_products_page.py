@@ -41,7 +41,7 @@ class ManageProductsPage(BasePage):
         return self
 
     def has_filter_results(self):
-        return self.get_element(self.NO_RESULTS).text != 'No results!'
+        return not self.verify_element_text(self.get_element(self.NO_RESULTS), 'No results!')
 
     def has_product_in_list(self, product_identifier):
         try:

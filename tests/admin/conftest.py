@@ -65,7 +65,7 @@ def create_admin_user(db_connection, faker, request):
             " date_added) " \
             "VALUES (1, %s, %s, %s, %s, %s, %s, '', '', %s, 1, NOW());"
 
-    username = faker.safe_email().split("@")[0]
+    username = faker.profile(fields=["username"])["username"]  # faker.safe_email().split("@")[0]
     test_password = "admin!32"
     salt = "VGNUpQvgV"
     ip = socket.gethostbyname(socket.gethostname())
@@ -78,8 +78,8 @@ def create_admin_user(db_connection, faker, request):
         faker.last_name(),
         faker.safe_email(),
         ip
-    )
-                                   )
+    ))
+
     db_connection.commit()
 
     return username, test_password
