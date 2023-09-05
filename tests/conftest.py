@@ -1,3 +1,5 @@
+import logging.handlers
+import os
 import random
 import mysql.connector
 
@@ -11,7 +13,7 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.firefox.service import Service as FirefoxService
 
 from configuration import YANDEX_WEBDRIVER_PATH, \
-    MYSQL_DB_NAME, MYSQL_DB_PASSWORD, MYSQL_DB_HOST, MYSQL_DB_USER, MYSQL_DB_PORT
+    MYSQL_DB_NAME, MYSQL_DB_PASSWORD, MYSQL_DB_HOST, MYSQL_DB_USER, MYSQL_DB_PORT, ENVIRONMENT, LOGS_PATH
 from src.page_objects.elements.products_element import ProductsElement
 
 
@@ -39,20 +41,16 @@ def products_element(browser):
 
 
 def pytest_addoption(parser):
-    parser.addoption(
-        "--browser",
-        default="chrome",
-        choices=["chrome", "firefox", "yandex", "edge", "Chrome", "Firefox", "Yandex", "Edge"]
-    )
-    parser.addoption(
-        "--headless", action="store_true"
-    )
-    parser.addoption(
-        "--base_url", help="Request URL", default="http://192.168.1.127:8081"
-    )
-    parser.addoption(
-        "--tolerance", type=int, default=3
-    )
+    parser.addoption("--browser", default="chrome",
+                     choices=["chrome", "firefox", "yandex", "edge", "Chrome", "Firefox", "Yandex", "Edge"])
+    parser.addoption("--headless", action="store_true")
+    parser.addoption("--base_url", help="Request URL", default="http://192.168.1.127:8081")
+    parser.addoption("--tolerance", type=int, default=3)
+
+    if ENVIRONMENT == "DEVELOPMENT":
+        parser.addoption("--log_level_threshold", default="INFO")
+    else:
+        parser.addoption("--log_level_threshold", default="ERROR")
 
 
 @pytest.fixture()
@@ -61,26 +59,36 @@ def base_url(request):
 
 
 @pytest.fixture()
-def browser(request, base_url):
+def browser(request, base_url, logger):
     browser_name = request.config.getoption("--browser").lower()
     headless = request.config.getoption("--headless")
     tolerance = request.config.getoption("--tolerance")
 
+    logger.info("Test {} started".format(request.node.name))
     if browser_name == "chrome":
         options = ChromeOptions()
         options.add_argument("start-maximized")
-
         options.add_argument("--window-size=1920,1080")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+
         if headless:
             options.add_argument("--headless")
+
+        options.set_capability('goog:loggingPrefs', {
+            'browser': 'ALL',
+            'performance': 'ALL',
+            'driver': 'ALL'
+        })
 
         driver = webdriver.Chrome(service=ChromeService(), options=options)
 
     elif browser_name == "firefox":
         options = FirefoxOptions()
-
         if headless:
             options.add_argument("-headless")
+
+        options.log.level = "trace"
 
         driver = webdriver.Firefox(service=FirefoxService(), options=options)
         driver.maximize_window()
@@ -88,7 +96,6 @@ def browser(request, base_url):
     elif browser_name == "yandex":
         options = ChromeOptions()
         options.add_argument("start-maximized")
-
         if headless:
             options.add_argument("--headless")
 
@@ -104,13 +111,42 @@ def browser(request, base_url):
     else:
         raise NotImplemented()
 
-    request.addfinalizer(driver.quit)
+    logger.info("Browser {} started".format(browser_name))
 
-    def go_to(path=""):
+    def navigate_to(path=""):
+        logger.info("{}: Navigate to url {}".format(request.node.name, base_url + path))
         driver.get(base_url + path)
 
-    driver.open = go_to
+    driver.open = navigate_to
     driver.open()
     driver.tolerance = tolerance
 
+    driver.log_level = logging.getLevelName(logger.level)
+    driver.logger = logger
+    driver.test_name = request.node.name
+
+    def finalizer():
+        driver.quit()
+        logger.info("Test {} is finished".format(request.node.name))
+
+    request.addfinalizer(finalizer)
+
     return driver
+
+
+@pytest.fixture()
+def logger(request):
+    log_level_threshold = request.config.getoption("--log_level_threshold").upper()
+
+    logger = logging.getLogger(request.node.name)
+
+    formatter = logging.Formatter("%(asctime)s | %(name)s |  %(levelname)s: %(message)s")
+    logger.setLevel(log_level_threshold)
+
+    file_handler = logging.handlers.TimedRotatingFileHandler(filename=os.path.join(LOGS_PATH, request.node.name+".log"),
+                                                             when='midnight', backupCount=30)
+    file_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+
+    return logger

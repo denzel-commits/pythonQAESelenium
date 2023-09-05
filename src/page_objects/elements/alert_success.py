@@ -9,6 +9,8 @@ class AlertSuccessElement(BasePage):
 
     def verify_success_message(self, message="Success: You have modified products!"):
         close_text = self.get_element(self.CLOSE_BUTTON).text
-        print(self.get_element(self.SELF).text.replace(close_text, "").strip())
+        self.logger.info("{}: Alert message: '{}'".format(self.class_name,
+                                                          self.get_element(self.SELF).text.replace(close_text,
+                                                                                                   "").strip()))
 
         assert message == self.get_element(self.SELF).text.replace(close_text, "").strip()

@@ -48,16 +48,17 @@ class HomePage(BasePage):
         self.click_cart_button()
 
         cart_product_names = [cart_item.find_element(*self.CART_ITEM_NAME).text
-                              for cart_item in self.get_elements(self.CART_ITEMS)
-                              ]
+                              for cart_item in self.get_elements(self.CART_ITEMS)]
 
         assert product_name in cart_product_names
 
-    @staticmethod
-    def verify_prices_changed_to(currency_code, initial_prices, new_prices):
+    def verify_prices_changed_to(self, currency_code, initial_prices, new_prices):
         converted_prices = [convert_currency(price, "USD", currency_code) for price in initial_prices]
         sanitized_new_prices = [sanitize_price(price, currency_code) for price in new_prices]
-        print(converted_prices, "==", sanitized_new_prices)
+
+        self.logger.info("{}: Compare prices: {} == {}"
+                         .format(self.class_name, str(converted_prices), str(sanitized_new_prices)))
+
         assert converted_prices == sanitized_new_prices
 
     def verify_currency_symbol(self, currency_symbol):

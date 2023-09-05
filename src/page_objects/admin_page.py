@@ -1,4 +1,3 @@
-from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 
 from src.base_classes.base_page import BasePage
@@ -38,14 +37,10 @@ class AdminPage(BasePage):
         self.click(self.get_element(self.LOGIN_BUTTON))
         return self
 
-    def press_enter(self):
-        self.get_element(self.PASSWORD_INPUT).send_keys(Keys.RETURN)
-        return self
-
     def login_with(self, username, password):
         self.set_username(username)
         self.set_password(password)
-        self.press_enter()
+        self._press_enter(self.PASSWORD_INPUT)
         return self
 
     def click_logout(self):

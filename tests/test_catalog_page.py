@@ -18,7 +18,7 @@ class TestCatalog:
         catalog.get_element(CatalogPage.LIST_VIEW)
 
     @pytest.mark.parametrize("currency_code", ["EUR", "GBP"])
-    def test_change_currency_prices(self, browser, currency_code, products_element):
+    def test_catalog_change_currency_prices(self, browser, currency_code, products_element):
         home_page = HomePage(browser)
         home_page.click_menu_item_by_name("Phones & PDAs")
 

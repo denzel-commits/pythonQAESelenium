@@ -1,4 +1,4 @@
-from selenium.common import TimeoutException
+from selenium.common import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.by import By
 
 from src.base_classes.base_page import BasePage
@@ -44,11 +44,10 @@ class ManageProductsPage(BasePage):
         return not self.verify_element_text(self.get_element(self.NO_RESULTS), 'No results!')
 
     def has_product_in_list(self, product_identifier):
-        try:
-            self.get_element((By.XPATH, f"//td[text() = '{product_identifier}']"), timeout=0.1)
-            return True
-        except AssertionError:
-            return False
+        assert self.is_present((By.XPATH, f"//td[text() = '{product_identifier}']"))
+
+    def has_no_product_in_list(self, product_identifier):
+        assert self.is_not_present((By.XPATH, f"//td[text() = '{product_identifier}']"))
 
     def click_product_checkbox(self, product_identifier):
         product_table = WebTableElement(self.browser, self.PRODUCT_LIST_TABLE)

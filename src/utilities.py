@@ -2,7 +2,7 @@ import random
 import string
 import os.path
 
-from configuration import SCREENSHOTS_PATH, currency_symbols
+from configuration import SCREENSHOTS_PATH, CURRENCY_SYMBOLS
 
 
 def make_screenshot(driver, filename):
@@ -30,4 +30,4 @@ def convert_currency(price, convert_from, convert_to):
 
 
 def sanitize_price(price, currency_code):
-    return float(price.replace(currency_symbols[currency_code], ""))
+    return float(price.replace(CURRENCY_SYMBOLS[currency_code], ""))
