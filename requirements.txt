@@ -2,3 +2,5 @@ pytest==7.4.0
 selenium==4.11.2
 mysql-connector-python==8.1.0
 Faker==19.3.1
+allure_pytest==2.13.2
+pytest-xdist==3.3.1

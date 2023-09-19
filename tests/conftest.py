@@ -1,6 +1,8 @@
 import logging.handlers
 import os
 import random
+
+import allure
 import mysql.connector
 
 import pytest
@@ -44,13 +46,13 @@ def pytest_addoption(parser):
     parser.addoption("--browser", default="chrome",
                      choices=["chrome", "firefox", "yandex", "edge", "Chrome", "Firefox", "Yandex", "Edge"])
     parser.addoption("--headless", action="store_true")
-    parser.addoption("--base_url", help="Request URL", default="http://192.168.1.127:8081")
+    parser.addoption("--base_url", help="Request URL", default="http://192.168.1.128:8081")
     parser.addoption("--tolerance", type=int, default=3)
 
     if ENVIRONMENT == "DEVELOPMENT":
         parser.addoption("--log_level_threshold", default="INFO")
     else:
-        parser.addoption("--log_level_threshold", default="ERROR")
+        parser.addoption("--log_level_threshold", default="WARNING")
 
 
 @pytest.fixture()
@@ -113,6 +115,7 @@ def browser(request, base_url, logger):
 
     logger.info("Browser {} started".format(browser_name))
 
+    @allure.step("Navigate to base_url {path}")
     def navigate_to(path=""):
         logger.info("{}: Navigate to url {}".format(request.node.name, base_url + path))
         driver.get(base_url + path)
@@ -126,6 +129,11 @@ def browser(request, base_url, logger):
     driver.test_name = request.node.name
 
     def finalizer():
+        if request.node.rep_call.failed:
+            allure.attach(driver.get_screenshot_as_png(),
+                          name=request.node.name,
+                          attachment_type=allure.attachment_type.PNG)
+
         driver.quit()
         logger.info("Test {} is finished".format(request.node.name))
 
@@ -150,3 +158,11 @@ def logger(request):
     logger.addHandler(file_handler)
 
     return logger
+
+
+@pytest.hookimpl(hookwrapper=True, tryfirst=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    rep = outcome.get_result()
+    setattr(item, "rep_" + rep.when, rep)
+    return rep

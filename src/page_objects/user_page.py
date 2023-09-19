@@ -1,3 +1,4 @@
+import allure
 from selenium.webdriver.common.by import By
 
 from src.base_classes.base_page import BasePage
@@ -22,36 +23,43 @@ class UserPage(BasePage):
 
     CREATED_ACCOUNT_HEADER = (By.CSS_SELECTOR, "#content H1")
 
+    @allure.step("Set firstname field {firstname}")
     def set_firstname(self, firstname):
         self._do_input(self.get_element(self.FIRSTNAME_INPUT),
                        firstname)
         return self
 
+    @allure.step("Set lastname field {lastname}")
     def set_lastname(self, lastname):
         self._do_input(self.get_element(self.LASTNAME_INPUT),
                        lastname)
         return self
 
+    @allure.step("Set email field {email}")
     def set_email(self, email):
         self._do_input(self.get_element(self.EMAIL_INPUT),
                        email)
         return self
 
+    @allure.step("Set telephone field {phone}")
     def set_telephone(self, phone):
         self._do_input(self.get_element(self.PHONE_INPUT),
                        phone)
         return self
 
+    @allure.step("Set password field {password}")
     def set_password(self, password):
         self._do_input(self.get_element(self.PASSWORD_INPUT),
                        password)
         return self
 
+    @allure.step("Set confirm password field {password}")
     def set_password_confirm(self, password):
         self._do_input(self.get_element(self.CONFIRM_INPUT),
                        password)
         return self
 
+    @allure.step("Set newsletter subscribe field to {choice}")
     def subscribe(self, choice="No"):
         if choice.lower() == "yes":
             self.click(self.get_element(self.SUBSCRIBE_YES_RADIO))
@@ -60,13 +68,16 @@ class UserPage(BasePage):
 
         return self
 
+    @allure.step("Set privacy policy")
     def check_privacy_policy(self):
         self.click(self.get_element(self.PRIVACY_POLICY_CHECKBOX))
         return self
 
+    @allure.step("Click continue button")
     def click_continue(self):
         self.click(self.get_element(self.CONTINUE_BUTTON))
         return self
 
+    @allure.step("Verify account created")
     def verify_account_created(self):
         assert self.verify_element_text(self.get_element(self.CREATED_ACCOUNT_HEADER), "Your Account Has Been Created!")

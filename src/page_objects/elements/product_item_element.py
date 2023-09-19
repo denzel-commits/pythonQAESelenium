@@ -1,3 +1,4 @@
+import allure
 from selenium.common import NoSuchElementException
 
 from src.base_classes.base_page import BasePage
@@ -20,9 +21,11 @@ class ProductItemElement(BasePage):
         super().__init__(driver)
         self.root = root
 
+    @allure.step
     def get_name(self) -> str:
         return self.root.find_element(*self.PRODUCT_NAME).text
 
+    @allure.step
     def get_price(self) -> str:
         try:
             old_price = self.root.find_element(*self.OLD_PRICE).text
@@ -34,8 +37,10 @@ class ProductItemElement(BasePage):
 
         return product_price.replace(tax_price, "").replace(old_price, "").strip()
 
+    @allure.step
     def add_to_cart(self):
         self.click(self.root.find_element(*self.CART_BUTTON))
 
+    @allure.step
     def get_image_element(self):
         return self.root.find_element(*self.PRODUCT_IMAGE)

@@ -1,4 +1,6 @@
 import time
+
+import allure
 import pytest
 
 from src.page_objects.catalog_page import CatalogPage
@@ -6,6 +8,9 @@ from src.page_objects.home_page import HomePage
 
 
 class TestCatalog:
+
+    @allure.feature("Catalog")
+    @allure.title("Verify elements presence")
     def test_catalog_page_elements(self, browser, base_url):
         catalog = HomePage(browser).click_menu_item_by_name("Phones & PDAs")
 
@@ -17,6 +22,8 @@ class TestCatalog:
         catalog.get_element(CatalogPage.GRID_VIEW)
         catalog.get_element(CatalogPage.LIST_VIEW)
 
+    @allure.feature("Currency change")
+    @allure.title("Change currency")
     @pytest.mark.parametrize("currency_code", ["EUR", "GBP"])
     def test_catalog_change_currency_prices(self, browser, currency_code, products_element):
         home_page = HomePage(browser)
