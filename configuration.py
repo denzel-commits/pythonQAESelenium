@@ -16,3 +16,8 @@ CURRENCY_SYMBOLS = {"EUR": "€", "GBP": "£", "USD": "$"}
 ENVIRONMENT = "DEVELOPMENT"
 LOGS_PATH = os.path.join(PROJECT_ROOT, "logs", "selenium")
 BROWSER_LOGS_PATH = os.path.join(PROJECT_ROOT, "logs", "browser")
+
+SAUCE_URL = "https://ondemand.eu-central-1.saucelabs.com:443/wd/hub"
+SAUCE_ACCESS_KEY = "a983bd96-5ea4-40a7-89da-3bb213f958cf"
+SAUCE_USERNAME = "oauth-dguchinsky-0012a"
+SAUCE_TESTNAME = "OTUS_OPENCART"

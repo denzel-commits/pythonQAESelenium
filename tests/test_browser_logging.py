@@ -2,6 +2,7 @@ import json
 import os
 from configuration import BROWSER_LOGS_PATH
 
+
 def test_logging_browser_chrome(browser):
     browser.execute_script("console.warn('Here is the WARNING message!')")
     browser.execute_script("console.error('Here is the ERROR message!')")
