@@ -11,4 +11,13 @@ MYSQL_DB_PASSWORD = ""
 MYSQL_DB_HOST = "127.0.0.1"
 MYSQL_DB_PORT = "3306"
 
-currency_symbols = {"EUR": "€", "GBP": "£", "USD": "$"}
+CURRENCY_SYMBOLS = {"EUR": "€", "GBP": "£", "USD": "$"}
+
+ENVIRONMENT = "DEVELOPMENT"
+LOGS_PATH = os.path.join(PROJECT_ROOT, "logs", "selenium")
+BROWSER_LOGS_PATH = os.path.join(PROJECT_ROOT, "logs", "browser")
+
+SAUCE_URL = ""
+SAUCE_ACCESS_KEY = ""
+SAUCE_USERNAME = ""
+SAUCE_TESTNAME = ""

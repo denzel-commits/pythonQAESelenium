@@ -1,3 +1,4 @@
+import allure
 import pytest
 from src.page_objects.product_page import ProductPage
 from src.page_objects.home_page import HomePage
@@ -5,6 +6,8 @@ from src.page_objects.home_page import HomePage
 
 class TestProduct:
 
+    @allure.feature("Product page")
+    @allure.title("Verify elements presence")
     @pytest.mark.parametrize("index", [0, 3])
     def test_product_page_elements(self, index, browser, products_element):
         HomePage(browser)

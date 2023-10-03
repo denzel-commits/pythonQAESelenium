@@ -1,12 +1,7 @@
 import random
 import string
-import os.path
 
-from configuration import SCREENSHOTS_PATH, currency_symbols
-
-
-def make_screenshot(driver, filename):
-    driver.save_screenshot(os.path.join(SCREENSHOTS_PATH, f"{filename}.png"))
+from configuration import CURRENCY_SYMBOLS
 
 
 def random_string(length=10):
@@ -30,4 +25,4 @@ def convert_currency(price, convert_from, convert_to):
 
 
 def sanitize_price(price, currency_code):
-    return float(price.replace(currency_symbols[currency_code], ""))
+    return float(price.replace(CURRENCY_SYMBOLS[currency_code], ""))

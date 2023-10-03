@@ -1,3 +1,4 @@
+import allure
 from selenium.webdriver.common.by import By
 
 from src.base_classes.base_page import BasePage
@@ -11,12 +12,15 @@ class WebTableElement(BasePage):
         super().__init__(browser)
         self._webtable = locator
 
+    @allure.step
     def get_rows_count(self):
         return len(self.get_elements_from_element(self._webtable, self.ROWS))
 
+    @allure.step
     def get_cols_count(self):
         return len(self.get_elements_from_element(self._webtable, self.COLS))
 
+    @allure.step
     def get_row_idx_for(self, search_text):
         rows_count = self.get_rows_count()
         cols_count = self.get_cols_count()
@@ -30,6 +34,7 @@ class WebTableElement(BasePage):
                     break
         return idx
 
+    @allure.step
     def get_cell_input_element(self, row_idx, col_idx=1, input_idx=1):
         return self.get_element_from_element(self._webtable,
                                              (By.XPATH, f"//tr[{row_idx}]/td[{col_idx}]/input[{input_idx}]"))

@@ -1,8 +1,12 @@
+import allure
+
 from src.page_objects.home_page import HomePage
 from src.page_objects.user_page import UserPage
 
 
 class TestUser:
+    @allure.feature("User Registration")
+    @allure.title("Verify elements presence")
     def test_register_page_elements(self, browser):
         HomePage(browser).click_register()
 
@@ -14,6 +18,8 @@ class TestUser:
         user_page.get_element(UserPage.PRIVACY_POLICY_CHECKBOX)
         user_page.get_element(UserPage.CONTINUE_BUTTON)
 
+    @allure.feature("User Registration")
+    @allure.title("Register new user")
     def test_register_new_user(self, browser, customer_profile):
         HomePage(browser).click_register()
 
