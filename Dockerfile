@@ -10,3 +10,4 @@ COPY . .
 ENV PYTHONPATH "${PYTHONPATH}:/usr/src/app"
 
 ENTRYPOINT ["pytest"]
+CMD ["--alluredir", "allure-results"]
