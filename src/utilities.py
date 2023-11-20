@@ -1,7 +1,13 @@
+import os
 import random
 import string
 
 from configuration import CURRENCY_SYMBOLS
+
+
+def create_directory_if_not_exists(directory_path):
+    if not os.path.exists(directory_path):
+        os.makedirs(directory_path)
 
 
 def random_string(length=10):

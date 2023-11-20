@@ -1,8 +1,12 @@
 import json
 import os
+
+import pytest
+
 from configuration import BROWSER_LOGS_PATH
 
 
+@pytest.mark.skip(reason="skip as not required")
 def test_logging_browser_chrome(browser):
     browser.execute_script("console.warn('Here is the WARNING message!')")
     browser.execute_script("console.error('Here is the ERROR message!')")

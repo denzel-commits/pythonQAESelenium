@@ -11,11 +11,13 @@ from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.safari.options import Options as SafariOptions
 
 from configuration import YANDEX_WEBDRIVER_PATH, \
     MYSQL_DB_NAME, MYSQL_DB_PASSWORD, MYSQL_DB_HOST, MYSQL_DB_USER, MYSQL_DB_PORT, ENVIRONMENT, LOGS_PATH, \
     SAUCE_USERNAME, SAUCE_ACCESS_KEY, SAUCE_TESTNAME
 from src.page_objects.elements.products_element import ProductsElement
+from src.utilities import create_directory_if_not_exists
 
 
 @pytest.fixture()
@@ -44,12 +46,12 @@ def products_element(browser):
 def pytest_addoption(parser):
     parser.addoption("--run_locally", action="store_true")
     parser.addoption("--browser", default="chrome",
-                     choices=["chrome", "firefox", "yandex", "edge", "Chrome", "Firefox", "Yandex", "Edge"])
+                     choices=["chrome", "chrome-mobile", "firefox", "yandex", "edge", "safari", "Chrome", "Firefox", "Yandex", "Edge"])
     parser.addoption("--headless", action="store_true")
-    parser.addoption("--base_url", help="Request URL", default="http://192.168.1.128:8081")
+    parser.addoption("--base_url", help="Request URL", default="http://192.168.1.127:8081")
     parser.addoption("--tolerance", type=int, default=3)
 
-    parser.addoption("--executor", default="https://ondemand.eu-central-1.saucelabs.com:443/wd/hub")
+    parser.addoption("--executor", default="http://192.168.1.127:4444")
     parser.addoption("--mobile", action="store_true")
     parser.addoption("--vnc", action="store_true")
     parser.addoption("--logs", action="store_true")
@@ -74,7 +76,7 @@ def configure_browser_options(request):
 
     options = None
 
-    if browser_name == "chrome":
+    if browser_name == "chrome" or browser_name == "chrome-mobile":
         options = ChromeOptions()
         options.add_argument("start-maximized")
         options.add_argument("--window-size=1920,1080")
@@ -110,6 +112,13 @@ def configure_browser_options(request):
         if headless:
             options.add_argument("--headless")
 
+    elif browser_name == "safari":
+        options = SafariOptions()
+        options.add_argument("start-maximized")
+
+        if headless:
+            options.add_argument("--headless")
+
     return options
 
 
@@ -130,44 +139,52 @@ def browser(request, base_url, logger, configure_browser_options):
     logger.info(f"Test {request.node.name} started")
 
     if run_locally:
-        if browser_name == "chrome" or browser_name == "edge":
+        if browser_name in ["chrome", "edge", "chrome-mobile"]:
             driver = webdriver.Chrome(options=configure_browser_options)
         elif browser_name == "firefox":
             driver = webdriver.Firefox(options=configure_browser_options)
+        elif browser_name == "safari":
+            driver = webdriver.Safari(options=configure_browser_options)
         elif browser_name == "yandex":
             driver = webdriver.Chrome(service=ChromeService(executable_path=YANDEX_WEBDRIVER_PATH),
                                       options=configure_browser_options)
         else:
             raise NotImplemented()
     else:
+        executor_url = f"{executor}"  # /wd/hub
         options = configure_browser_options
         caps = {
             "browserName": browser_name,
             "browserVersion": version,
-            "selenoid:options": {
-                "enableVNC": vnc,
-                "name": os.getenv("BUILD_NUMBER", str(random.randint(9000, 10000))),
-                "screenResolution": "1280x2000",
-                "enableVideo": video,
-                "enableLog": logs,
-                "timeZone": "Europe/Moscow",
-                "env": ["LANG=ru_RU.UTF-8", "LANGUAGE=ru:en", "LC_ALL=ru_RU.UTF-8"],
-            },
-            "acceptInsecureCerts": True,
         }
+        # caps = {
+        #     "browserName": browser_name,
+        #     "browserVersion": version,
+        #     "selenoid:options": {
+        #         "enableVNC": vnc,
+        #         "name": os.getenv("BUILD_NUMBER", str(random.randint(9000, 10000))),
+        #         "screenResolution": "1280x2000",
+        #         "enableVideo": video,
+        #         "enableLog": logs,
+        #         "timeZone": "Europe/Moscow",
+        #         "env": ["LANG=ru_RU.UTF-8", "LANGUAGE=ru:en", "LC_ALL=ru_RU.UTF-8"],
+        #     },
+        #     "acceptInsecureCerts": True,
+        # }
 
         for k, v in caps.items():
             options.set_capability(k, v)
 
         driver = webdriver.Remote(
-            command_executor=executor,
+            command_executor=executor_url,
             options=options
         )
 
     if not mobile:
         driver.maximize_window()
 
-    logger.info(f"Browser {browser_name} started")
+    location = "locally" if run_locally else "remotely"
+    logger.info(f"Browser {browser_name} started {location}")
 
     @allure.step("Navigate to base_url {path}")
     def navigate_to(path=""):
@@ -205,6 +222,8 @@ def logger(request):
 
     formatter = logging.Formatter("%(asctime)s | %(name)s |  %(levelname)s: %(message)s")
     logger.setLevel(log_level_threshold)
+
+    create_directory_if_not_exists(LOGS_PATH)
 
     file_handler = logging.handlers.TimedRotatingFileHandler(filename=os.path.join(LOGS_PATH, request.node.name+".log"),
                                                              when='midnight', backupCount=30)
