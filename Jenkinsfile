@@ -26,7 +26,7 @@ pipeline {
                 sh '''
                 python3 -m venv venv
                 venv/bin/pip3 install -r requirements.txt
-                export PYTHONPATH="${PWD}"
+                export PYTHONPATH=/var/jenkins_home/workspace/octest-pipeline
                 '''
             }
         }
