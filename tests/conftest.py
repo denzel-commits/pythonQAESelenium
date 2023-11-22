@@ -58,10 +58,7 @@ def pytest_addoption(parser):
     parser.addoption("--video", action="store_true")
     parser.addoption("--bv")
 
-    if ENVIRONMENT == "DEVELOPMENT":
-        parser.addoption("--log_level_threshold", default="INFO")
-    else:
-        parser.addoption("--log_level_threshold", default="WARNING")
+    parser.addoption("--logging_level", default="WARNING")
 
 
 @pytest.fixture()
@@ -216,12 +213,12 @@ def browser(request, base_url, logger, configure_browser_options):
 
 @pytest.fixture()
 def logger(request):
-    log_level_threshold = request.config.getoption("--log_level_threshold").upper()
+    logging_level = request.config.getoption("--logging_level").upper()
 
     logger = logging.getLogger(request.node.name)
 
     formatter = logging.Formatter("%(asctime)s | %(name)s |  %(levelname)s: %(message)s")
-    logger.setLevel(log_level_threshold)
+    logger.setLevel(logging_level)
 
     create_directory_if_not_exists(LOGS_PATH)
 

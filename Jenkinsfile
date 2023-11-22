@@ -4,8 +4,8 @@ pipeline {
             label 'docker-agent-python'
             }
       }
-    triggers {
-        pollSCM 'H/5 * * * *'
+    environment{
+        PYTHONPATH = "${WORKSPACE}"
     }
     parameters{
         string(name: 'BASE_URL', defaultValue: 'http://192.168.1.127:8081', description: 'Enter system Base URL')
@@ -19,38 +19,28 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Building..."
-                echo "PYTHONPATH ${PWD}"
-                sh '''
-                echo "doing build stuff..."
-                '''
-                sh '''
-                python3 -m venv venv
-                venv/bin/pip3 install -r requirements.txt
-                export PYTHONPATH=/var/jenkins_home/workspace/octest-pipeline
-                '''
+                sh 'pip install -r requirements.txt'
             }
         }
         stage('Test') {
             steps {
                 echo "Testing..."
-                echo "doing test stuff..."
-                sh '''
-                venv/bin/pytest -n=${params.WORKERS_NUMBER} --base_url=${params.BASE_URL} --executor=${params.EXECUTOR} --browser=${params.BROWSER} --bv=${params.BROWSER_VERSION}
-                '''
+                sh "python3 -m pytest -n=${params.WORKERS_NUMBER} --logging_level=${params.LOG_LEVEL} --base_url=${params.BASE_URL} --executor=${params.EXECUTOR} --browser=${params.BROWSER} --bv=${params.BROWSER_VERSION}"
             }
         }
-        stage('Deliver') {
+        stage('Reports') {
             steps {
-                echo 'Deliver...'
-                sh '''
-                echo "doing delivery stuff..."
-                '''
+                script {
+                    allure([
+                            includeProperties: false,
+                            jdk: '',
+                            properties: [],
+                            reportBuildPolicy: 'ALWAYS',
+                            results: [[path: 'target/allure-results']]
+                    ])
+                }
             }
         }
     }
-    post{
-        always{
-            echo 'Generate Allure Reports'
-        }
-    }
+
 }
