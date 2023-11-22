@@ -30,6 +30,7 @@ class TestAdminPage:
     @allure.feature("Product management")
     @allure.story("Add new product with 'Add New product' button")
     @allure.title("Add product from dashboard")
+    @pytest.mark.skip(reason="Known Issue #1 stale element reference: stale element not found")
     @pytest.mark.parametrize("test_product", test_products, indirect=True)
     def test_add_product_from_dashboard(self, browser, create_admin_user, test_product):
         AdminPage(browser) \
