@@ -28,18 +28,16 @@ pipeline {
                 sh "python3 -m pytest -n=${params.WORKERS_NUMBER} --logging_level=${params.LOG_LEVEL} --base_url=${params.BASE_URL} --executor=${params.EXECUTOR} --browser=${params.BROWSER} --bv=${params.BROWSER_VERSION}"
             }
         }
-        stage('Reports') {
-            steps {
-                script {
-                    allure([
-                            includeProperties: false,
-                            jdk: '',
-                            properties: [],
-                            reportBuildPolicy: 'ALWAYS',
-                            results: [[path: 'target/allure-results']]
-                    ])
-                }
-            }
+    }
+    post{
+        always{
+        allure([
+                includeProperties: false,
+                jdk: '',
+                properties: [],
+                reportBuildPolicy: 'ALWAYS',
+                results: [[path: 'target/allure-results']]
+            ])
         }
     }
 
