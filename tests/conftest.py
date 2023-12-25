@@ -128,10 +128,7 @@ def browser(request, base_url, logger, configure_browser_options):
     executor = request.config.getoption("--executor")
     mobile = request.config.getoption("--mobile")
 
-    vnc = request.config.getoption("--vnc")
     version = request.config.getoption("--bv")
-    logs = request.config.getoption("--logs")
-    video = request.config.getoption("--video")
 
     logger.info(f"Test {request.node.name} started")
 
@@ -153,9 +150,6 @@ def browser(request, base_url, logger, configure_browser_options):
         caps = {
             "browserName": browser_name,
             "browserVersion": version,
-            "enableVNC": vnc,
-            "enableLog": logs,
-            "enableVideo": video,
         }
 
         for k, v in caps.items():
