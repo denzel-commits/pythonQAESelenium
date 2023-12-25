@@ -22,11 +22,9 @@ def test_logging_browser_chrome(browser):
         data = []
         for entry in logs:
             log = json.loads(entry["message"])["message"]
-            if (
-                    "Network.response" in log["method"]
+            if ("Network.response" in log["method"]
                     or "Network.request" in log["method"]
-                    or "Network.webSocket" in log["method"]
-            ):
+                    or "Network.webSocket" in log["method"]):
                 data.append(log)
 
         f.write(json.dumps(data, indent=4, ensure_ascii=False))

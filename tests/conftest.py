@@ -14,8 +14,7 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.safari.options import Options as SafariOptions
 
 from configuration import YANDEX_WEBDRIVER_PATH, \
-    MYSQL_DB_NAME, MYSQL_DB_PASSWORD, MYSQL_DB_HOST, MYSQL_DB_USER, MYSQL_DB_PORT, ENVIRONMENT, LOGS_PATH, \
-    SAUCE_USERNAME, SAUCE_ACCESS_KEY, SAUCE_TESTNAME
+    MYSQL_DB_NAME, MYSQL_DB_PASSWORD, MYSQL_DB_HOST, MYSQL_DB_USER, MYSQL_DB_PORT, LOGS_PATH
 from src.page_objects.elements.products_element import ProductsElement
 from src.utilities import create_directory_if_not_exists
 
@@ -46,7 +45,8 @@ def products_element(browser):
 def pytest_addoption(parser):
     parser.addoption("--run_locally", action="store_true")
     parser.addoption("--browser", default="chrome",
-                     choices=["chrome", "chrome-mobile", "firefox", "yandex", "edge", "safari", "Chrome", "Firefox", "Yandex", "Edge"])
+                     choices=["chrome", "chrome-mobile", "firefox", "yandex", "edge", "safari", "Chrome", "Firefox",
+                              "Yandex", "Edge"])
     parser.addoption("--headless", action="store_true")
     parser.addoption("--base_url", help="Request URL", default="http://192.168.1.127:8081")
     parser.addoption("--tolerance", type=int, default=3)
@@ -146,28 +146,17 @@ def browser(request, base_url, logger, configure_browser_options):
             driver = webdriver.Chrome(service=ChromeService(executable_path=YANDEX_WEBDRIVER_PATH),
                                       options=configure_browser_options)
         else:
-            raise NotImplemented()
+            raise NotImplementedError
     else:
         executor_url = f"{executor}"  # /wd/hub
         options = configure_browser_options
         caps = {
             "browserName": browser_name,
             "browserVersion": version,
+            "enableVNC": vnc,
+            "enableLog": logs,
+            "enableVideo": video,
         }
-        # caps = {
-        #     "browserName": browser_name,
-        #     "browserVersion": version,
-        #     "selenoid:options": {
-        #         "enableVNC": vnc,
-        #         "name": os.getenv("BUILD_NUMBER", str(random.randint(9000, 10000))),
-        #         "screenResolution": "1280x2000",
-        #         "enableVideo": video,
-        #         "enableLog": logs,
-        #         "timeZone": "Europe/Moscow",
-        #         "env": ["LANG=ru_RU.UTF-8", "LANGUAGE=ru:en", "LC_ALL=ru_RU.UTF-8"],
-        #     },
-        #     "acceptInsecureCerts": True,
-        # }
 
         for k, v in caps.items():
             options.set_capability(k, v)
@@ -222,7 +211,7 @@ def logger(request):
 
     create_directory_if_not_exists(LOGS_PATH)
 
-    file_handler = logging.handlers.TimedRotatingFileHandler(filename=os.path.join(LOGS_PATH, request.node.name+".log"),
+    file_handler = logging.handlers.TimedRotatingFileHandler(filename=os.path.join(LOGS_PATH, request.node.name + ".log"),
                                                              when='midnight', backupCount=30)
     file_handler.setFormatter(formatter)
 
@@ -232,24 +221,8 @@ def logger(request):
 
 
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
-def pytest_runtest_makereport(item, call):
+def pytest_runtest_makereport(item):
     outcome = yield
     rep = outcome.get_result()
     setattr(item, "rep_" + rep.when, rep)
     return rep
-
-
-@pytest.fixture()
-def add_sauce_caps(request, options):
-    version = request.config.getoption("--bv")
-
-    options.browser_version = 'latest'
-    options.platform_name = 'Windows 11'
-    sauce_options = {}
-    sauce_options['username'] = SAUCE_USERNAME
-    sauce_options['accessKey'] = SAUCE_ACCESS_KEY
-    sauce_options['build'] = 'selenium-build-D66TJ'
-    sauce_options['name'] = SAUCE_TESTNAME
-    options.set_capability('sauce:options', sauce_options)
-
-    return options
