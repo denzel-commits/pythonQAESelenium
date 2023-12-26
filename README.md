@@ -51,21 +51,12 @@ Point executor to http://localhost:4444
 
 "Opencart UI test" accepts several options:
 
-* --base_url: opencart store url
-* --executor: remote executor URL
-* --browser: browser name chrome | firefox | safari
-* --bv: browser version
-* --logging_level: log level INFO | WARN | ERROR
-* --headless: for browser headless mode
-
-
-
-* The "base_url" option is required, OpenCart 3.0 web store URL
-* The "executor" option is optional, if specified tests will run remotely
-* The "browser" option is optional, browser name, default "chrome"
-* The "bv" option is required option if "executor" is specified, browser version
-* The "logging_level" option is optional, log_level to show, default "WARNING"
-* The "headless" option is optional, browser headless mode 
+* --base_url: required option - specify opencart store url
+* --executor: is optional, if specified tests will run remotely - remote executor URL
+* --browser: is optional, browser name (chrome | firefox | safari), default=chrome
+* --bv: is optional, is required if "executor" is specified - browser version
+* --logging_level: is optional, log level (INFO | WARNING | ERROR)
+* --headless: is optional, to run browser in headless mode
 
 # Usage example
 ``python3 -m pytest --base_url=http://192.168.1.127:8081 --executor=http://192.168.1.127:4444 --browser=chrome --bv=119.0 --logging_level=INFO``
