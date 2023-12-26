@@ -1,6 +1,13 @@
 # "OpenCart 3.0" UI test framework.
 
-Frontend and backend testing. Product add to cart test. Admin create products test. Login and registration tests.
+### Frontend tests
+* New user registration
+* Random product add to cart
+* Currency change
+
+### Backend tests
+* Login to admin dashboard
+* Manage products - create new product, delete product.
 
 # Installation
 
@@ -17,14 +24,14 @@ This installs all modules required.
 
 # Prerequisites
 
-## Build OpenCart 3.0 test environment
+### Build OpenCart 3.0 test environment
 
 Run this command for Windows:
 
    ``$Env:OPENCART_PORT=8081; $Env:PHPADMIN_PORT=8888; $Env:LOCAL_IP=$(Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias 'Wi-Fi' | Where-Object {$_.AddressFamily -eq 'IPv4'}).IPAddress; ./test_env/docker-compose up -d``
 
 
-## Selenium Grid Standalone with Chrome
+### Selenium Grid Standalone with Chrome
    ``docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-chrome:119.0``
    
 Point executor to http://localhost:4444
@@ -33,16 +40,16 @@ Point executor to http://localhost:4444
 
 192.168.1.127 is host local IP address
 
-## Running locally:
+### Running locally:
 
 ``python3 -m pytest --base_url=http://192.168.1.127:8081``
 
-## Running remotely in selenium grid:
+### Running remotely in selenium grid:
 
 ``python3 -m pytest --base_url=http://192.168.1.127:8081 --executor=http://192.168.1.127:4444 --browser=chrome --bv=119.0``
 
 
-## Running in Docker container:
+### Running in Docker container:
 
 1. Build docker image: ``docker build -t oc-ui-test .``
 2. Run docker container: ``docker run --rm -it -v ${pwd}/allure-results:/usr/src/app/allure-results -v ${pwd}/logs/selenium:/usr/src/app/logs/selenium --name=running-ui-test oc-ui-test --executor=http://192.168.1.127:4444 --browser=chrome --bv="119.0"``
