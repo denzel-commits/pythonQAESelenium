@@ -8,7 +8,7 @@ SCREENSHOTS_PATH = os.path.join(PROJECT_ROOT, "screenshots")
 MYSQL_DB_NAME = "bitnami_opencart"
 MYSQL_DB_USER = "bn_opencart"
 MYSQL_DB_PASSWORD = ""
-MYSQL_DB_HOST = "127.0.0.1"
+MYSQL_DB_HOST = "192.168.1.127"
 MYSQL_DB_PORT = "3306"
 
 CURRENCY_SYMBOLS = {"EUR": "€", "GBP": "£", "USD": "$"}
@@ -16,8 +16,3 @@ CURRENCY_SYMBOLS = {"EUR": "€", "GBP": "£", "USD": "$"}
 ENVIRONMENT = "DEVELOPMENT"
 LOGS_PATH = os.path.join(PROJECT_ROOT, "logs", "selenium")
 BROWSER_LOGS_PATH = os.path.join(PROJECT_ROOT, "logs", "browser")
-
-SAUCE_URL = ""
-SAUCE_ACCESS_KEY = ""
-SAUCE_USERNAME = ""
-SAUCE_TESTNAME = ""

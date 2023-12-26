@@ -11,11 +11,12 @@ from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.safari.options import Options as SafariOptions
 
 from configuration import YANDEX_WEBDRIVER_PATH, \
-    MYSQL_DB_NAME, MYSQL_DB_PASSWORD, MYSQL_DB_HOST, MYSQL_DB_USER, MYSQL_DB_PORT, ENVIRONMENT, LOGS_PATH, \
-    SAUCE_USERNAME, SAUCE_ACCESS_KEY, SAUCE_TESTNAME
+    MYSQL_DB_NAME, MYSQL_DB_PASSWORD, MYSQL_DB_HOST, MYSQL_DB_USER, MYSQL_DB_PORT, LOGS_PATH
 from src.page_objects.elements.products_element import ProductsElement
+from src.utilities import create_directory_if_not_exists
 
 
 @pytest.fixture()
@@ -42,24 +43,21 @@ def products_element(browser):
 
 
 def pytest_addoption(parser):
-    parser.addoption("--run_locally", action="store_true")
     parser.addoption("--browser", default="chrome",
-                     choices=["chrome", "firefox", "yandex", "edge", "Chrome", "Firefox", "Yandex", "Edge"])
+                     choices=["chrome", "chrome-mobile", "firefox", "yandex", "edge", "safari", "Chrome", "Firefox",
+                              "Yandex", "Edge"])
     parser.addoption("--headless", action="store_true")
-    parser.addoption("--base_url", help="Request URL", default="http://192.168.1.128:8081")
+    parser.addoption("--base_url", help="Request URL")
     parser.addoption("--tolerance", type=int, default=3)
 
-    parser.addoption("--executor", default="https://ondemand.eu-central-1.saucelabs.com:443/wd/hub")
+    parser.addoption("--executor", help="Remote executor URL")
     parser.addoption("--mobile", action="store_true")
     parser.addoption("--vnc", action="store_true")
     parser.addoption("--logs", action="store_true")
     parser.addoption("--video", action="store_true")
     parser.addoption("--bv")
 
-    if ENVIRONMENT == "DEVELOPMENT":
-        parser.addoption("--log_level_threshold", default="INFO")
-    else:
-        parser.addoption("--log_level_threshold", default="WARNING")
+    parser.addoption("--logging_level", default="WARNING")
 
 
 @pytest.fixture()
@@ -74,7 +72,7 @@ def configure_browser_options(request):
 
     options = None
 
-    if browser_name == "chrome":
+    if browser_name == "chrome" or browser_name == "chrome-mobile":
         options = ChromeOptions()
         options.add_argument("start-maximized")
         options.add_argument("--window-size=1920,1080")
@@ -110,64 +108,61 @@ def configure_browser_options(request):
         if headless:
             options.add_argument("--headless")
 
+    elif browser_name == "safari":
+        options = SafariOptions()
+        options.add_argument("start-maximized")
+
+        if headless:
+            options.add_argument("--headless")
+
     return options
 
 
 @pytest.fixture()
 def browser(request, base_url, logger, configure_browser_options):
-    run_locally = request.config.getoption("--run_locally")
     browser_name = request.config.getoption("--browser").lower()
     tolerance = request.config.getoption("--tolerance")
 
     executor = request.config.getoption("--executor")
     mobile = request.config.getoption("--mobile")
 
-    vnc = request.config.getoption("--vnc")
     version = request.config.getoption("--bv")
-    logs = request.config.getoption("--logs")
-    video = request.config.getoption("--video")
 
     logger.info(f"Test {request.node.name} started")
 
-    if run_locally:
-        if browser_name == "chrome" or browser_name == "edge":
-            driver = webdriver.Chrome(options=configure_browser_options)
-        elif browser_name == "firefox":
-            driver = webdriver.Firefox(options=configure_browser_options)
-        elif browser_name == "yandex":
-            driver = webdriver.Chrome(service=ChromeService(executable_path=YANDEX_WEBDRIVER_PATH),
-                                      options=configure_browser_options)
-        else:
-            raise NotImplemented()
-    else:
+    if executor:
+        executor_url = f"{executor}"  # /wd/hub
         options = configure_browser_options
         caps = {
             "browserName": browser_name,
             "browserVersion": version,
-            "selenoid:options": {
-                "enableVNC": vnc,
-                "name": os.getenv("BUILD_NUMBER", str(random.randint(9000, 10000))),
-                "screenResolution": "1280x2000",
-                "enableVideo": video,
-                "enableLog": logs,
-                "timeZone": "Europe/Moscow",
-                "env": ["LANG=ru_RU.UTF-8", "LANGUAGE=ru:en", "LC_ALL=ru_RU.UTF-8"],
-            },
-            "acceptInsecureCerts": True,
         }
 
         for k, v in caps.items():
             options.set_capability(k, v)
 
         driver = webdriver.Remote(
-            command_executor=executor,
+            command_executor=executor_url,
             options=options
         )
+    else:
+        if browser_name in ["chrome", "edge", "chrome-mobile"]:
+            driver = webdriver.Chrome(options=configure_browser_options)
+        elif browser_name == "firefox":
+            driver = webdriver.Firefox(options=configure_browser_options)
+        elif browser_name == "safari":
+            driver = webdriver.Safari(options=configure_browser_options)
+        elif browser_name == "yandex":
+            driver = webdriver.Chrome(service=ChromeService(executable_path=YANDEX_WEBDRIVER_PATH),
+                                      options=configure_browser_options)
+        else:
+            raise NotImplementedError
 
     if not mobile:
         driver.maximize_window()
 
-    logger.info(f"Browser {browser_name} started")
+    location = "remotely" if executor else "locally"
+    logger.info(f"Browser {browser_name} started {location}")
 
     @allure.step("Navigate to base_url {path}")
     def navigate_to(path=""):
@@ -199,14 +194,16 @@ def browser(request, base_url, logger, configure_browser_options):
 
 @pytest.fixture()
 def logger(request):
-    log_level_threshold = request.config.getoption("--log_level_threshold").upper()
+    logging_level = request.config.getoption("--logging_level").upper()
 
     logger = logging.getLogger(request.node.name)
 
     formatter = logging.Formatter("%(asctime)s | %(name)s |  %(levelname)s: %(message)s")
-    logger.setLevel(log_level_threshold)
+    logger.setLevel(logging_level)
 
-    file_handler = logging.handlers.TimedRotatingFileHandler(filename=os.path.join(LOGS_PATH, request.node.name+".log"),
+    create_directory_if_not_exists(LOGS_PATH)
+
+    file_handler = logging.handlers.TimedRotatingFileHandler(filename=os.path.join(LOGS_PATH, request.node.name + ".log"),
                                                              when='midnight', backupCount=30)
     file_handler.setFormatter(formatter)
 
@@ -216,24 +213,8 @@ def logger(request):
 
 
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
-def pytest_runtest_makereport(item, call):
+def pytest_runtest_makereport(item):
     outcome = yield
     rep = outcome.get_result()
     setattr(item, "rep_" + rep.when, rep)
     return rep
-
-
-@pytest.fixture()
-def add_sauce_caps(request, options):
-    version = request.config.getoption("--bv")
-
-    options.browser_version = 'latest'
-    options.platform_name = 'Windows 11'
-    sauce_options = {}
-    sauce_options['username'] = SAUCE_USERNAME
-    sauce_options['accessKey'] = SAUCE_ACCESS_KEY
-    sauce_options['build'] = 'selenium-build-D66TJ'
-    sauce_options['name'] = SAUCE_TESTNAME
-    options.set_capability('sauce:options', sauce_options)
-
-    return options

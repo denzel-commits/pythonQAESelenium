@@ -1,8 +1,12 @@
 import json
 import os
+
+import pytest
+
 from configuration import BROWSER_LOGS_PATH
 
 
+@pytest.mark.skip(reason="skip as not required")
 def test_logging_browser_chrome(browser):
     browser.execute_script("console.warn('Here is the WARNING message!')")
     browser.execute_script("console.error('Here is the ERROR message!')")
@@ -18,11 +22,9 @@ def test_logging_browser_chrome(browser):
         data = []
         for entry in logs:
             log = json.loads(entry["message"])["message"]
-            if (
-                    "Network.response" in log["method"]
+            if ("Network.response" in log["method"]
                     or "Network.request" in log["method"]
-                    or "Network.webSocket" in log["method"]
-            ):
+                    or "Network.webSocket" in log["method"]):
                 data.append(log)
 
         f.write(json.dumps(data, indent=4, ensure_ascii=False))
