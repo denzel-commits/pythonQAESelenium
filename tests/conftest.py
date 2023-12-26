@@ -43,15 +43,14 @@ def products_element(browser):
 
 
 def pytest_addoption(parser):
-    parser.addoption("--run_locally", action="store_true")
     parser.addoption("--browser", default="chrome",
                      choices=["chrome", "chrome-mobile", "firefox", "yandex", "edge", "safari", "Chrome", "Firefox",
                               "Yandex", "Edge"])
     parser.addoption("--headless", action="store_true")
-    parser.addoption("--base_url", help="Request URL", default="http://192.168.1.127:8081")
+    parser.addoption("--base_url", help="Request URL")
     parser.addoption("--tolerance", type=int, default=3)
 
-    parser.addoption("--executor", default="http://192.168.1.127:4444")
+    parser.addoption("--executor", help="Remote executor URL")
     parser.addoption("--mobile", action="store_true")
     parser.addoption("--vnc", action="store_true")
     parser.addoption("--logs", action="store_true")
@@ -121,7 +120,6 @@ def configure_browser_options(request):
 
 @pytest.fixture()
 def browser(request, base_url, logger, configure_browser_options):
-    run_locally = request.config.getoption("--run_locally")
     browser_name = request.config.getoption("--browser").lower()
     tolerance = request.config.getoption("--tolerance")
 
@@ -132,19 +130,7 @@ def browser(request, base_url, logger, configure_browser_options):
 
     logger.info(f"Test {request.node.name} started")
 
-    if run_locally:
-        if browser_name in ["chrome", "edge", "chrome-mobile"]:
-            driver = webdriver.Chrome(options=configure_browser_options)
-        elif browser_name == "firefox":
-            driver = webdriver.Firefox(options=configure_browser_options)
-        elif browser_name == "safari":
-            driver = webdriver.Safari(options=configure_browser_options)
-        elif browser_name == "yandex":
-            driver = webdriver.Chrome(service=ChromeService(executable_path=YANDEX_WEBDRIVER_PATH),
-                                      options=configure_browser_options)
-        else:
-            raise NotImplementedError
-    else:
+    if executor:
         executor_url = f"{executor}"  # /wd/hub
         options = configure_browser_options
         caps = {
@@ -159,11 +145,23 @@ def browser(request, base_url, logger, configure_browser_options):
             command_executor=executor_url,
             options=options
         )
+    else:
+        if browser_name in ["chrome", "edge", "chrome-mobile"]:
+            driver = webdriver.Chrome(options=configure_browser_options)
+        elif browser_name == "firefox":
+            driver = webdriver.Firefox(options=configure_browser_options)
+        elif browser_name == "safari":
+            driver = webdriver.Safari(options=configure_browser_options)
+        elif browser_name == "yandex":
+            driver = webdriver.Chrome(service=ChromeService(executable_path=YANDEX_WEBDRIVER_PATH),
+                                      options=configure_browser_options)
+        else:
+            raise NotImplementedError
 
     if not mobile:
         driver.maximize_window()
 
-    location = "locally" if run_locally else "remotely"
+    location = "remotely" if executor else "locally"
     logger.info(f"Browser {browser_name} started {location}")
 
     @allure.step("Navigate to base_url {path}")
