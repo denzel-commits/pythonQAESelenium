@@ -17,11 +17,22 @@ This installs all modules required.
 
 # Prerequisites
 
-1. Build OpenCart 3.0 test environment
-## Run this command for Windows:
-``$Env:OPENCART_PORT=8081; $Env:PHPADMIN_PORT=8888; $Env:LOCAL_IP=$(Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias 'Wi-Fi' | Where-Object {$_.AddressFamily -eq 'IPv4'}).IPAddress; ./test_env/docker-compose up -d``
+## Build OpenCart 3.0 test environment
+
+Run this command for Windows:
+
+   ``$Env:OPENCART_PORT=8081; $Env:PHPADMIN_PORT=8888; $Env:LOCAL_IP=$(Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias 'Wi-Fi' | Where-Object {$_.AddressFamily -eq 'IPv4'}).IPAddress; ./test_env/docker-compose up -d``
+
+
+## Selenium Grid Standalone with Chrome
+   ``docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-chrome:119.0``
+   
+Point executor to http://localhost:4444
 
 # Running the Tests
+
+192.168.1.127 is host local IP address
+
 Running locally:
 
 ``python3 -m pytest --base_url=http://192.168.1.127:8081``
@@ -53,14 +64,14 @@ Running remotely in selenium grid:
 ``python3 -m pytest --base_url=http://192.168.1.127:8081 --executor=http://192.168.1.127:4444 --browser=chrome --bv=119.0 --logging_level=INFO``
 
 
-# Run tests from Jenkins CI
-Use Jenkinsfile to run the test from Jenkins CI server
+# Running tests from Jenkins CI
+Use "Jenkinsfile" to run the tests from Jenkins CI server
 
 1. Create new Pipeline project
 2. Choose Pipeline > Definition: Pipeline script from SCM
 3. Set SCM to GIT
-4. Repository URL: https://github.com/denzel-commits/opencartAPICI/tree/develop
-5. Set Branches to build: "*/develop"
+4. Set Repository URL: https://github.com/denzel-commits/pythonQAESelenium
+5. Set Branches to build: "*/logger"
 6. Script Path: "Jenkinsfile"
 7. Click "Save"
 8. Click "Build now" to start test run
