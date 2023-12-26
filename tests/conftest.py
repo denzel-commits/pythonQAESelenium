@@ -52,6 +52,7 @@ def pytest_addoption(parser):
 
     parser.addoption("--executor", help="Remote executor URL")
     parser.addoption("--mobile", action="store_true")
+
     parser.addoption("--vnc", action="store_true")
     parser.addoption("--logs", action="store_true")
     parser.addoption("--video", action="store_true")
