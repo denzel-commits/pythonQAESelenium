@@ -33,13 +33,19 @@ Point executor to http://localhost:4444
 
 192.168.1.127 is host local IP address
 
-Running locally:
+## Running locally:
 
 ``python3 -m pytest --base_url=http://192.168.1.127:8081``
 
-Running remotely in selenium grid:
+## Running remotely in selenium grid:
 
 ``python3 -m pytest --base_url=http://192.168.1.127:8081 --executor=http://192.168.1.127:4444 --browser=chrome --bv=119.0``
+
+
+## Running in Docker container:
+
+1. Build docker image: ``docker build -t oc-ui-test .``
+2. Run docker container: ``docker run --rm -it -v ${pwd}/allure-results:/usr/src/app/allure-results -v ${pwd}/logs/selenium:/usr/src/app/logs/selenium --name=running-ui-test oc-ui-test --executor=http://192.168.1.127:4444 --browser=chrome --bv="119.0"``
 
 # Options
 
@@ -53,6 +59,7 @@ Running remotely in selenium grid:
 * --headless: for browser headless mode
 
 
+
 * The "base_url" option is required, OpenCart 3.0 web store URL
 * The "executor" option is optional, if specified tests will run remotely
 * The "browser" option is optional, browser name, default "chrome"
@@ -62,6 +69,7 @@ Running remotely in selenium grid:
 
 # Usage example
 ``python3 -m pytest --base_url=http://192.168.1.127:8081 --executor=http://192.168.1.127:4444 --browser=chrome --bv=119.0 --logging_level=INFO``
+``python3 -m pytest -n=2 --base_url=http://192.168.1.127:8081 --executor=http://192.168.1.127:4444 --browser=chrome --bv=119.0 --logging_level=INFO``
 
 
 # Running tests from Jenkins CI
@@ -74,5 +82,5 @@ Use "Jenkinsfile" to run the tests from Jenkins CI server
 5. Set Branches to build: "*/logger"
 6. Script Path: "Jenkinsfile"
 7. Click "Save"
-8. Click "Build now" to start test run
+8. Click "Build now with parameters" to start test run
 9. Check allure report for results
