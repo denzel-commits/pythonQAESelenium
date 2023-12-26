@@ -69,6 +69,7 @@ Point executor to http://localhost:4444
 
 # Usage example
 ``python3 -m pytest --base_url=http://192.168.1.127:8081 --executor=http://192.168.1.127:4444 --browser=chrome --bv=119.0 --logging_level=INFO``
+
 ``python3 -m pytest -n=2 --base_url=http://192.168.1.127:8081 --executor=http://192.168.1.127:4444 --browser=chrome --bv=119.0 --logging_level=INFO``
 
 
